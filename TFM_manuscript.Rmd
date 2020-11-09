@@ -1,0 +1,138 @@
+---
+title: '<center> <h1>TFM</h1> </center>'
+author: "María P. Plaza García"
+subtitle: '`r params$subtitulo`'
+date: '`r format(Sys.Date(),"%e de %B, %Y")`'
+citecolor: blue
+urlcolor: blue
+output:
+  pdf_document: 
+    fig_caption: yes
+    highlight: tango
+    keep_tex: yes
+    latex_engine: xelatex
+    number_sections: yes
+    toc: yes
+    toc_depth: 3
+  html_document:
+    df_print: paged
+    toc: yes
+    fig_caption: yes
+    toc_float: true
+    theme: united
+    highlight: tango
+    toc_depth: 3
+  word_document:
+    toc: true
+link-citations: yes
+nocite: |
+  @gentry2013twitter
+  
+header-includes:
+  - \usepackage[spanish]{babel}
+  - \usepackage{subfig}
+params:
+  file: 
+  folder.data: ./datos
+  subtitulo: crawling twitter
+bibliography: PEC3.bib
+geometry: margin=2cm
+---
+
+```{r setup, include=FALSE}
+require(knitr)
+knitr::opts_chunk$set(
+  fig.show = "hold",
+  fig.align='center',
+  fig.height = 4.5,
+  fig.width = 5,
+	message = FALSE,
+	warning = FALSE,
+	cache = TRUE,
+	comment = NULL,
+	tidy = FALSE
+)
+options(width=90)
+Sys.setlocale("LC_TIME", "C")
+```
+
+```{r packages, message=FALSE, warning=FALSE, include=FALSE}
+usePackage <- function(p) {    
+    if (!is.element(p, installed.packages()[,1]))
+        install.packages(p, dep = TRUE)
+    require(p, character.only = TRUE)
+}
+usePackage("devtools")
+usePackage("twitteR")
+usePackage("knitr")
+usePackage("tidytext")
+usePackage("dplyr")
+usePackage("ggplot2")
+
+if(!"rtweet" %in% rownames(installed.packages()) == FALSE){
+install.packages("rtweet")
+}
+if(!"tm" %in% rownames(installed.packages()) == FALSE){
+install.packages("tm")
+}
+if(!"SnowballC" %in% rownames(installed.packages()) == FALSE){
+install.packages("SnowballC")
+}
+if(!"wordcloud" %in% rownames(installed.packages()) == FALSE){
+install.packages("wordcloud")
+}
+if(!"RColorBrewer" %in% rownames(installed.packages()) == FALSE){
+install.packages("RColorBrewer")
+}
+library(rtweet)
+library(tm)
+library(SnowballC)
+library(wordcloud)
+library(RColorBrewer)
+
+```
+
+# Trabajando con los datos
+## Lectura de datos
+
+Para facilitar la reproducibilidad del informe, se han incluido varios parámetros en el encabezado `YAML` del documento cuyos valores se pueden establecer cuando se procesa el informe. Se ha incluido tanto la semilla que emplearemos más tarde en la creación de los datos de test y de entrenamiento así como los nombres de los archivos y la ruta de acceso, de esta forma podemos leer los datos con el siguiente código:
+
+```{r datos, message=FALSE, warning=FALSE}
+# Ahora ya se importan los datos a formato data.frame
+library(readr)
+m.file <- ifelse(params$folder.data=="", 
+                 params$file,
+                 file.path(params$folder.data,params$file))
+data <- read.csv(file=m.file)
+```
+
+```{r twitter attentication}
+api_key = "UD07I2ys3ezqPJ06RhU2ZeaM2"
+api_secret = "WA4mEStmAb4LLd9WH9Ksn0wgq2cO2X21pyaookrDXxORzrMpE3"
+access_token = "300524046-1y5gzzHRCE3H6BufI2syxYidyTATsE7Mrufehgol"
+access_token_secret = "sX3M0WKQgsE1DrtK9v95UvzeYMAaOeXT6IM7G5kJ4OXYV"
+
+library(twitteR)
+setup_twitter_oauth(api_key, api_secret, access_token, access_token_secret)
+```
+
+obteniendo los datos
+
+```{r}
+
+data <- c("hayfever", "asthma", "conjunctivitis", "hay fever", "pollens", "rhinitis", "pollen", "allergies", "antihistamines", "allergy",	"sniffles", "antihistamine","histamines", "sneezing",	"sinuses", "sinusitis", "blocked nose", "pollen allergy", "outdoor mould", "spore", "mould allergy")
+
+library(dplyr)
+library(tidytext)
+library(ggplot2)
+
+
+tweet_words <- fn_twitter_df %>% select(id, text) %>% unnest_tokens(word,text)
+
+tweet_words %>% count(word,sort=T) %>% slice(1:20) %>% 
+  ggplot(aes(x = reorder(word, 
+    n, function(n) -n), y = n)) + geom_bar(stat = "identity") + theme(axis.text.x = element_text(angle = 60, 
+    hjust = 1)) + xlab("")
+```
+
+

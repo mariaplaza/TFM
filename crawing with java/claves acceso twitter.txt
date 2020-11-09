@@ -1,0 +1,24 @@
+API key:
+
+UD07I2ys3ezqPJ06RhU2ZeaM2
+
+API key secret:
+
+WA4mEStmAb4LLd9WH9Ksn0wgq2cO2X21pyaookrDXxORzrMpE3
+
+Access token:
+
+300524046-1y5gzzHRCE3H6BufI2syxYidyTATsE7Mrufehgol
+
+Access token secret:
+
+sX3M0WKQgsE1DrtK9v95UvzeYMAaOeXT6IM7G5kJ4OXYV
+
+
+otras:
+
+UD07I2ys3ezqPJ06RhU2ZeaM2
+
+WA4mEStmAb4LLd9WH9Ksn0wgq2cO2X21pyaookrDXxORzrMpE3
+
+AAAAAAAAAAAAAAAAAAAAAAisHwEAAAAAZcz%2FzdgKZKwEaaHqoJyQmTyQXE0%3DYmFjJEbBq8jQxPHtUu34AtwKWekd4Jdjf5YPAzjM4V1xwXtYaz

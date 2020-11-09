@@ -1,0 +1,309 @@
+---
+title: '<center> <h1>TFM</h1> </center>'
+author: "María P. Plaza García"
+subtitle: '`r params$subtitulo`'
+date: '`r format(Sys.Date(),"%e de %B, %Y")`'
+citecolor: blue
+urlcolor: blue
+output:
+  word_document:
+    toc: true
+  html_document:
+    df_print: paged
+    toc: yes
+    fig_caption: yes
+    toc_float: true
+    theme: united
+    highlight: tango
+    toc_depth: 3
+  pdf_document: 
+    fig_caption: yes
+    highlight: tango
+    keep_tex: yes
+    latex_engine: xelatex
+    number_sections: yes
+    toc: yes
+    toc_depth: 3
+link-citations: yes
+nocite: |
+  @gentry2013twitter
+  
+header-includes:
+  - \usepackage[spanish]{babel}
+  - \usepackage{subfig}
+params:
+  file: 
+  folder.data: 
+  subtitulo: Crowdsourcing and machine learning for tracking outdoors allergy-related public health surveillance on Twitter, from monitoring and prediction to public response
+bibliography: TFM.bib
+geometry: margin=2cm
+---
+
+```{r setup, include=TRUE, eval=FALSE}
+require(knitr)
+knitr::opts_chunk$set(
+  fig.show = "hold",
+  fig.align='center',
+  fig.height = 4.5,
+  fig.width = 5,
+	message = FALSE,
+	warning = FALSE,
+	cache = TRUE,
+	comment = NULL,
+	tidy = FALSE
+)
+options(width=90)
+Sys.setlocale("LC_TIME", "C")
+```
+
+## Paquete twitterR
+
+```{r twitter attentication, eval=FALSE, include=TRUE}
+api_key = "UD07I2ys3ezqPJ06RhU2ZeaM2"
+api_secret = "WA4mEStmAb4LLd9WH9Ksn0wgq2cO2X21pyaookrDXxORzrMpE3"
+access_token = "300524046-1y5gzzHRCE3H6BufI2syxYidyTATsE7Mrufehgol"
+access_token_secret = "sX3M0WKQgsE1DrtK9v95UvzeYMAaOeXT6IM7G5kJ4OXYV"
+
+library(twitteR)
+setup_twitter_oauth(api_key, api_secret, access_token, access_token_secret)
+```
+
+obteniendo los datos
+
+```{r eval=FALSE}
+
+data <- c("hayfever", "asthma", "conjunctivitis", "hay fever", "pollens", "rhinitis", "pollen", "allergies", "antihistamines", "allergy",	"sniffles", "antihistamine","histamines", "sneezing",	"sinuses", "sinusitis", "blocked nose", "pollen allergy", "outdoor mould", "spore", "mould allergy")
+
+
+fn_twitter <- searchTwitter(data,n=20000,lang="en")
+
+fn_twitter_df2 <- twListToDF(fn_twitter) # Convert to data frame
+
+head(fn_twitter_df2)
+
+library(dplyr)
+library(tidytext)
+library(ggplot2)
+
+tweet_words <- fn_twitter_df2 %>% select(id, text) %>% unnest_tokens(word,text)
+
+tweet_words %>% count(word,sort=T) %>% slice(1:20) %>% 
+  ggplot(aes(x = reorder(word, 
+    n, function(n) -n), y = n)) + geom_bar(stat = "identity") + theme(axis.text.x = element_text(angle = 60, 
+    hjust = 1)) + xlab("")
+```
+
+## Paquete rtweet
+
+```{r}
+library(rtweet)
+
+create_token(
+app = "allergy_data",
+consumer_key = "UD07I2ys3ezqPJ06RhU2ZeaM2",
+consumer_secret = "WA4mEStmAb4LLd9WH9Ksn0wgq2cO2X21pyaookrDXxORzrMpE3",
+access_token = "300524046-1y5gzzHRCE3H6BufI2syxYidyTATsE7Mrufehgol",
+access_secret = "sX3M0WKQgsE1DrtK9v95UvzeYMAaOeXT6IM7G5kJ4OXYV",
+set_renv = TRUE
+)
+
+querywords <- c("hayfever", "asthma", "conjunctivitis", "hay fever", "pollens", "rhinitis", "pollen", "allergies", "antihistamines", "allergy",	"sniffles", "antihistamine","histamines", "sneezing",	"sinuses", "sinusitis", "blocked nose", "pollen allergy", "outdoor mould", "spore", "mould allergy", "asma", "conjuntivitis", "alergia", "polen", "rinitis", "antiestaminico")
+
+## make multiple independent search queries
+ds3 <- Map(
+  "search_tweets",
+  querywords,
+  n = 20000
+)
+View(ds3)
+
+save(ds3, file="ds3.RData")
+# load("fname.RData")
+
+library(erer)
+write.list(z = ds3, file = "ds3.csv")
+
+
+```
+
+# otra prueba
+
+```{r}
+
+querywords1 <- c("conjunctivitis", "hay fever", "pollens", "rhinitis", "pollen", "allergies", "antihistamines", "allergy",	"sniffles", "antihistamine","histamines", "sneezing",	"sinuses", "sinusitis", "blocked nose", "pollen allergy", "outdoor mould", "spore", "mould allergy", "asma", "conjuntivitis", "alergia", "polen", "rinitis", "antiestaminico")
+
+## make multiple independent search queries
+lista4 <- Map(
+  "search_tweets",
+  querywords1,
+  n = 20000
+)
+View(lista4)
+
+save(lista4, file="ds4.RData")
+# load("fname.RData")
+
+library(erer)
+write.list(z = lista4, file = "ds4.csv")
+
+
+querywords2 <- c("allergies", "antihistamines", "allergy",	"sniffles", "antihistamine","histamines", "sneezing",	"sinuses", "sinusitis", "blocked nose", "pollen allergy", "outdoor mould", "spore", "mould allergy", "asma", "conjuntivitis", "alergia", "polen", "rinitis", "antiestaminico")
+
+## make multiple independent search queries
+ds14 <- Map(
+  "search_tweets",
+  querywords2,
+  n = 20000
+)
+View(ds14)
+
+save(ds14, file="ds14.RData")
+# load("fname.RData")
+
+library(erer)
+#write.list(z = ds14, file = "ds14.csv")
+
+
+```
+
+
+
+```{r}
+queryword3 <- c("allergy",	"sniffles", "antihistamine","histamines", "sneezing",	"sinuses", "sinusitis", "blocked nose", "pollen allergy", "outdoor mould", "spore", "mould allergy", "asma", "conjuntivitis", "alergia", "polen", "rinitis", "antiestaminico")
+
+## make multiple independent search queries
+ds15 <- Map(
+  "search_tweets",
+  queryword3,
+  n = 20000
+)
+View(ds15)
+
+save(ds15, file="ds15.RData")
+# load("fname.RData")
+#write.list(z = ds15, file = "ds15.csv")
+
+```
+
+
+```{r}
+query_word4 <- c("sniffles", "antihistamine","histamines", "sneezing",	"sinuses", "sinusitis", "blocked nose", "pollen allergy", "outdoor mould", "spore", "mould allergy", "asma", "conjuntivitis", "alergia", "polen", "rinitis", "antiestaminico")
+
+## make multiple independent search queries
+ds16 <- Map(
+  "search_tweets",
+  query_word4,
+  n = 20000
+)
+View(ds16)
+
+save(ds16, file="ds16.RData")
+# load("fname.RData")
+
+write.list(z = ds16, file = "ds16.csv")
+
+```
+
+
+```{r}
+query_word5 <- c("antihistamine", "histamines", "sneezing",	"sinuses", "sinusitis", "blocked nose", "pollen allergy", "outdoor mould", "spore", "mould allergy", "asma", "conjuntivitis", "alergia", "polen", "rinitis", "antiestaminico")
+
+## make multiple independent search queries
+ds17 <- Map(
+  "search_tweets",
+  query_word5,
+  n = 20000
+)
+View(ds17)
+
+save(ds17, file="ds17.RData")
+# load("fname.RData")
+
+```
+
+```{r}
+query_word6 <- c("sinuses", "sinusitis", "blocked nose", "pollen allergy", "outdoor mould", "spore", "mould allergy", "asma", "conjuntivitis", "alergia", "polen", "rinitis", "antiestaminico")
+
+## make multiple independent search queries
+ds18 <- Map(
+  "search_tweets",
+  query_word6,
+  n = 40000
+)
+View(ds18)
+
+save(ds18, file="ds18.RData")
+# load("fname.RData")
+write.list(z = ds18, file = "ds18.csv")
+```
+
+```{r}
+query_word7 <- c("spore", "mould allergy", "asma", "conjuntivitis", "alergia", "polen", "rinitis", "antiestaminico")
+
+## make multiple independent search queries
+ds19 <- Map(
+  "search_tweets",
+  query_word7,
+  n = 40000
+)
+View(ds19)
+
+save(ds19, file="ds19.RData")
+# load("fname.RData")
+write.list(z = ds19, file = "ds19.csv")
+```
+
+```{r}
+query_word8 <- c("conjuntivitis", "alergia", "polen", "rinitis", "antiestaminico")
+
+## make multiple independent search queries
+ds20 <- Map(
+  "search_tweets",
+  query_word8,
+  n = 40000
+)
+View(ds20)
+
+save(ds20, file="ds20.RData")
+# load("fname.RData")
+write.list(z = ds20, file = "ds20.csv")
+```
+
+
+```{r}
+query_word9 <- c("polen", "rinitis", "antiestaminico")
+
+## make multiple independent search queries
+ds21 <- Map(
+  "search_tweets",
+  query_word9,
+  n = 40000
+)
+View(ds21)
+
+save(ds21, file="ds21.RData")
+# load("fname.RData")
+
+
+write.list(z = ds21, file = "ds21.csv")
+```
+
+
+```{r}
+query_word10 <- c("rinitis", "antiestaminico")
+
+## make multiple independent search queries
+ds22 <- Map(
+  "search_tweets",
+  query_word10,
+  n = 40000
+)
+View(ds22)
+
+save(ds22, file="ds22.RData")
+# load("fname.RData")
+
+
+#write.list(z = ds13, file = "ds13.csv")
+```
+

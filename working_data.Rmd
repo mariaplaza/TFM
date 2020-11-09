@@ -1,0 +1,89 @@
+---
+title: "working_with_data"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## WORKING WITH DATA
+
+## READ ALL TXT FILES INTO ONE (DONEEEE)
+
+```{r}
+
+out=data.frame()
+
+for (i in seq_along(all.txt)) {
+  all.txt = list.files("C:/Documentos/json", pattern="*.txt", full.names=TRUE)
+  data_json <- ndjson::stream_in(all.txt[i])
+  out = bind_rows(out, data_json)
+  print(all.txt)
+  print(i)
+  i=i+1
+   }
+  
+dim(out)
+```
+
+# import like a list
+
+```{r}
+# Give the input file name to the function. COMO UNA LISTA
+result <- rjson::fromJSON(file = "C:/Documentos/json/tweet_by_keyword_alergia_upTo_01_11_2020__07_22_33.txt") 
+glimpse(result)
+```
+
+# import like data frame EL BUENO
+
+```{r}
+json_file <- stream_in(file("./tweet_by_keyword_alergia_upTo_01_11_2020__07_22_33.json"))
+dplyr::glimpse(json_file)
+
+# ESTE ES EL BUENO
+system.time(bitly01 <- ndjson::stream_in("C:/Documentos/tweets/tweet_by_keyword_alergia_upTo_01_11_2020__07_22_33.txt"))
+dplyr::glimpse(bitly01)
+# write.csv(bitly01, "bitly01.csv")
+```
+
+
+# select some columns of data.frame of 30 vars
+
+```{r}
+select_data <- subset(bitly01, select=c("created_at", "id", "lang", "place", "text", "user.followers_count", "user.friends_count", "user.id", "user.location", "user.screen_name", "user.statuses_count", "place.country", "place.country_code", "place.full_name", "place.id", "place.bounding_box.coordinates.0.0.0", "place.bounding_box.coordinates.0.0.1", "place.bounding_box.coordinates.0.1.0", "place.bounding_box.coordinates.0.1.1", "place.bounding_box.coordinates.0.2.0", "place.bounding_box.coordinates.0.2.1", "place.bounding_box.coordinates.0.3.0", "place.bounding_box.coordinates.0.3.1"))
+dim(select_data)
+```
+# select some columns of data.frame of 1517 vars
+
+# Cleaning data
+
+```{r}
+library(tidyr)
+library(dplyr)
+library(tidyverse)    
+
+    clean_tweets <- function(x) {
+                x %>%
+                        str_remove_all(" ?(f|ht)(tp)(s?)(://)(.*)[.|/](.*)") %>%
+                        str_replace_all("&amp;", "and") %>%
+                        str_remove_all("[[:punct:]]") %>%
+                        str_remove_all("^RT:? ") %>%
+                        str_remove_all("@[[:alnum:]]+") %>%
+                        str_remove_all("#[[:alnum:]]+") %>%
+                        str_replace_all("\\\n", " ") %>%
+                        str_to_lower() %>%
+                        str_trim("both")
+        }
+
+limpitos <- bitly01 %>% clean_tweets
+
+dim(limpitos)
+```
+
+
+
+
+
+
+
